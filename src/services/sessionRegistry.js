@@ -5,7 +5,8 @@ const path = require("path");
 // Old session files do not have a status field
 const DEFAULT_SESSION_STATUS = "COMPLETED";
 const RECORDINGS_DIR = path.join(__dirname, "../recordings");
-
+// Base folder where session data is stored
+const SESSION_BASE_DIR = path.join(__dirname, "../recordings");
 // In-memory store for sessions
 const sessions = new Map();
 
@@ -90,6 +91,36 @@ function updateSessionStatus(sessionId, newStatus) {
   return true;
 }
 
+/**
+ * Returns folder path for a session
+ */
+function getSessionFolder(sessionId) {
+  return path.join(SESSION_BASE_DIR, `session_${sessionId}`);
+}
+
+/**
+ * Ensures session folder exists
+ */
+function ensureSessionFolder(sessionId) {
+  const folderPath = getSessionFolder(sessionId);
+
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath, { recursive: true });
+  }
+
+  return folderPath;
+}
+
+/**
+ * Saves session metadata to meta.json
+ */
+function saveSessionMeta(sessionId, data) {
+  const folderPath = ensureSessionFolder(sessionId);
+  const metaPath = path.join(folderPath, "meta.json");
+
+  fs.writeFileSync(metaPath, JSON.stringify(data, null, 2));
+}
+
 module.exports = {
   loadSessions,
   getSession,
@@ -97,4 +128,7 @@ module.exports = {
   getAllSessions,
   getSessionStatus,
   updateSessionStatus,
+  getSessionFolder,
+  ensureSessionFolder,
+  saveSessionMeta,
 };
