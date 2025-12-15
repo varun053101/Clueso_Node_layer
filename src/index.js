@@ -7,9 +7,11 @@ const apiRoutes = require('./routes');
 const recordingRoutes = require('./routes/v1/recording-routes');
 const pythonRoutes = require('./routes/v1/python-routes'); // Add python routes
 const { FrontendService } = require('./services');
+const sessionRegistry = require("./services/sessionRegistry");
 
 const app = express();
 const httpServer = http.createServer(app);
+sessionRegistry.loadSessions();
 
 // Initialize Socket.IO for frontend communication
 FrontendService.initialize(httpServer);
