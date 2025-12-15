@@ -4,7 +4,7 @@ const path = require("path");
 // Default status for old sessions
 // Old session files do not have a status field
 const DEFAULT_SESSION_STATUS = "COMPLETED";
-const RECORDINGS_DIR = path.join(__dirname, "../../recordings");
+const RECORDINGS_DIR = path.join(__dirname, "../recordings");
 
 // In-memory store for sessions
 const sessions = new Map();
