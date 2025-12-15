@@ -1,14 +1,17 @@
 const fs = require("fs");
 const path = require("path");
 
-const RECORDINGS_DIR = path.join(__dirname, "../../recordings");
+// Default status for old sessions
+// Old session files do not have a status field
+const DEFAULT_SESSION_STATUS = "COMPLETED";
+const RECORDINGS_DIR = path.join(__dirname, "../recordings");
 
 // In-memory store for sessions
 const sessions = new Map();
 
 /**
  * Load all existing session files at startup
- */
+ */ 
 function loadSessions() {
   if (!fs.existsSync(RECORDINGS_DIR)) {
     return;
@@ -28,8 +31,13 @@ function loadSessions() {
       if (data.sessionId) {
         sessions.set(data.sessionId, {
           sessionId: data.sessionId,
-          filePath,
-          data,
+          filePath: filePath,
+          data: data,
+
+          // Every session must have a status
+          // If missing we use a safe default
+          status: data.status || DEFAULT_SESSION_STATUS,
+
           loadedAt: Date.now(),
         });
       }
@@ -60,9 +68,33 @@ function getAllSessions() {
   return Array.from(sessions.values());
 }
 
+/**
+ * Returns the current status of a session
+ */
+function getSessionStatus(sessionId) {
+  const session = sessions.get(sessionId);
+  if (!session) return null;
+
+  return session.status;
+}
+
+/**
+ * Updates the status of a session
+ * Returns false if session does not exist
+ */
+function updateSessionStatus(sessionId, newStatus) {
+  const session = sessions.get(sessionId);
+  if (!session) return false;
+
+  session.status = newStatus;
+  return true;
+}
+
 module.exports = {
   loadSessions,
   getSession,
   sessionExists,
   getAllSessions,
+  getSessionStatus,
+  updateSessionStatus,
 };
